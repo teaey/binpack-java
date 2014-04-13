@@ -156,10 +156,9 @@ public class Binpack_ {
             type = TYPE_INT_NEGATIVE;
         }
         type |= INT_LONG_LENGTH;
-        while (value > INT_3_BITS_VALUE) {
-            byte dd = (byte) (INT_INT_MASK_2 | INT_INT_MASK_1 & value);
+        while (value > INT_3_BITS_VALUE || value < 0) {
             out.write((int) (INT_INT_MASK_2 | INT_INT_MASK_1 & value));
-            value = value >> 7;
+            value = value >>> 7;
         }
         out.write((int) (type | value));
     }
@@ -265,6 +264,9 @@ public class Binpack_ {
                 count++;
             }
         }
+        if(read == -1){
+            return CLOSE_MARK;
+        }
         if (type <= TYPE_NULL) {
             //单字节 或者 复杂结构
             switch (type) {
@@ -326,14 +328,14 @@ public class Binpack_ {
             } else {
                 data |= ((last & INT_3_BITS_VALUE) << (count * 7));
                 boolean posi = ((TYPE_INT_POSITIVE | last & 0xE0) == TYPE_INT_POSITIVE);
-                if ((INT_BYTE_LENGTH | last & 0x18) == INT_BYTE_LENGTH) {
-                    return posi ? (byte) data : (byte) -data;
+                if ((INT_LONG_LENGTH | last & 0x18) == INT_LONG_LENGTH) {
+                    return posi ? data : -data;
                 } else if ((INT_SHORT_LENGTH | last & 0x18) == INT_SHORT_LENGTH) {
                     return posi ? (short) data : (short) -data;
                 } else if ((INT_INTEGER_LENGTH | last & 0x18) == INT_INTEGER_LENGTH) {
                     return posi ? (int) data : (int) -data;
                 } else {//if ((last | INT_LONG_LENGTH) == INT_LONG_LENGTH)
-                    return posi ? data : -data;
+                    return posi ? (byte) data : (byte) -data;
                 }
             }
         }

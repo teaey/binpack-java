@@ -3,21 +3,27 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author xiaofei.wxf
  */
 public class Binpack_Test {
     @Test
-    public void testLongOverflow() {
+    public void testLongOverflow() throws IOException {
         long _long = Long.MIN_VALUE;
         byte[] encoded = Bin.encode(_long, "utf8");
         Object decoded = Bin.decode(encoded, "utf8");
         System.out.println(_long);
         System.out.println(decoded);
 
-        System.out.println(Integer.highestOneBit(256 + 128 + 1));
-        ;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        Binpack_.pack(out, Byte.MIN_VALUE);
+        encoded = out.toByteArray();
+        decoded = Binpack_.unpack(new ByteArrayInputStream(encoded));
+        System.out.println();
     }
 
     @Test
@@ -86,6 +92,22 @@ public class Binpack_Test {
                 break;
             }
         }
+    }
+
+    @Test
+    public void testPackUnpackList() throws IOException {
+        List l = new ArrayList();
+        l.add(Integer.valueOf(1));
+        l.add(Byte.valueOf((byte) 1));
+        l.add(Short.valueOf((short) 1));
+        l.add(Long.valueOf(1));
+        l.add("string");
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        Binpack_.pack(out, l);
+        byte[] data = out.toByteArray();
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        Object o = Binpack_.unpack(in);
+        System.out.println();
     }
 
 }
